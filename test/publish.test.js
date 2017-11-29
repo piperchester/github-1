@@ -56,7 +56,7 @@ test.serial('Publish a release', async t => {
   t.true(github.isDone());
 });
 
-test.serial('Publish a release with one asset', async t => {
+test.serial.only('Publish a release with one asset', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
   process.env.GH_URL = 'https://othertesturl.com:443';
@@ -68,6 +68,7 @@ test.serial('Publish a release with one asset', async t => {
   const releaseUrl = `https://github.com/${owner}/${repo}/releases/${nextRelease.version}`;
   const assetUrl = `https://github.com/${owner}/${repo}/releases/download/${nextRelease.version}/upload.txt`;
   const releaseId = 1;
+  const uploadUrl = `https://othertesturl.com:443/api/uploads/repos/${owner}/${repo}/releases/${releaseId}/assets{?name,label}`;
 
   const github = authenticate({
     githubUrl: process.env.GH_URL,
@@ -80,7 +81,7 @@ test.serial('Publish a release with one asset', async t => {
       name: nextRelease.gitTag,
       body: nextRelease.notes,
     })
-    .reply(200, {html_url: releaseUrl, id: releaseId})
+    .reply(200, {upload_url: uploadUrl, html_url: releaseUrl, id: releaseId})
     .post(`/repos/${owner}/${repo}/git/refs`, {ref: `refs/tags/${nextRelease.gitTag}`, sha: nextRelease.gitHead})
     .reply({});
 
